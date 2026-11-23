@@ -1,0 +1,13 @@
+from .models import Notification
+
+
+def notification_count(request):
+    """Add unread notification count to all template contexts."""
+    if request.user.is_authenticated:
+        count = Notification.objects.filter(user=request.user, is_read=False).count()
+        recent = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
+        return {
+            'unread_notification_count': count,
+            'recent_notifications': recent,
+        }
+    return {'unread_notification_count': 0, 'recent_notifications': []}

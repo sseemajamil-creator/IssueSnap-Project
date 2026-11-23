@@ -1,0 +1,86 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">Process</span>
+    <h1 class="section-title" style="color:white">How IssueSnap Works</h1>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4">
+    {% for step in steps %}
+    <div class="row g-4 align-items-center mb-5 reveal">
+      <div class="col-lg-6 {% if forloop.counter|divisibleby:2 %}order-lg-2{% endif %}">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">{{ forloop.counter }}</div>
+          <div>
+            <h4 class="fw-700">{{ step.title }}</h4>
+            <p class="text-muted">{{ step.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Manual steps since we can't pass complex context here -->
+    <div class="row g-4 mb-5 reveal">
+      <div class="col-lg-6">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">1</div>
+          <div>
+            <h4 class="fw-700">Create Your Account</h4>
+            <p class="text-muted">Register with your email. It's free and takes under a minute.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">2</div>
+          <div>
+            <h4 class="fw-700">Upload Photos</h4>
+            <p class="text-muted">Take clear photos of the civic issue. Up to 5 images per complaint. AI analyzes the first image instantly.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">3</div>
+          <div>
+            <h4 class="fw-700">AI Classifies the Issue</h4>
+            <p class="text-muted">Our MobileNetV2 model processes the image and returns a real classification result with confidence score.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">4</div>
+          <div>
+            <h4 class="fw-700">Pin the Location</h4>
+            <p class="text-muted">Use GPS or click the map to mark the exact location. This powers hotspot analytics for administrators.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">5</div>
+          <div>
+            <h4 class="fw-700">Submit & Get Your ID</h4>
+            <p class="text-muted">Submit the form. Receive a unique complaint ID (ISS-2026-XXXXXX) for tracking.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal">
+        <div class="d-flex align-items-start gap-3">
+          <div class="step-number flex-shrink-0" style="width:56px;height:56px;font-size:1.25rem">6</div>
+          <div>
+            <h4 class="fw-700">Track Until Resolved</h4>
+            <p class="text-muted">Follow every status update from Pending to Resolved. Get notified at each stage.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

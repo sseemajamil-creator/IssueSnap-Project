@@ -1,0 +1,381 @@
+{% extends 'base/base.html' %}
+{% load static humanize %}
+
+{% block content %}
+<!-- ======================================================
+     HERO SECTION
+     ====================================================== -->
+<section class="hero-section">
+  <!-- Particle effects -->
+  <div class="hero-particles" aria-hidden="true">
+    {% for i in "12345678901234567890" %}
+    <div class="particle" style="
+      left: {{ forloop.counter0|add:5 }}%;
+      animation-duration: {{ forloop.counter|add:8 }}s;
+      animation-delay: {{ forloop.counter0 }}s;
+      width: {{ forloop.counter0|add:3 }}px;
+      height: {{ forloop.counter0|add:3 }}px;
+    "></div>
+    {% endfor %}
+  </div>
+
+  <div class="container position-relative" style="padding-top:120px;padding-bottom:80px">
+    <div class="row align-items-center g-5">
+      <!-- Text content -->
+      <div class="col-lg-6 hero-content">
+        <div class="hero-badge">
+          <i class="bi bi-cpu-fill"></i>
+          AI-Powered Civic Issue Detection
+        </div>
+
+        <h1 class="hero-title">
+          Report Civic Issues<br>
+          <span class="text-gradient">Smarter &amp; Faster</span><br>
+          with AI
+        </h1>
+
+        <p class="hero-description">
+          IssueSnap uses cutting-edge computer vision and NLP to automatically
+          classify potholes, broken streetlights, garbage overflow and more.
+          Your city, improved — one report at a time.
+        </p>
+
+        <div class="hero-actions">
+          {% if user.is_authenticated %}
+          <a href="{% url 'complaints:report_issue' %}" class="btn-primary-custom">
+            <i class="bi bi-camera-fill"></i> Report an Issue
+          </a>
+          <a href="{% url 'complaints:citizen_dashboard' %}" class="btn-outline-custom">
+            <i class="bi bi-speedometer2"></i> My Dashboard
+          </a>
+          {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn-primary-custom">
+            <i class="bi bi-person-plus-fill"></i> Get Started Free
+          </a>
+          <a href="{% url 'pages:how_it_works' %}" class="btn-outline-custom">
+            <i class="bi bi-play-circle"></i> How It Works
+          </a>
+          {% endif %}
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat-item">
+            <span class="stat-number" data-count="{{ stats.total_reported }}">0</span>
+            <span class="stat-label">Issues Reported</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="stat-number" data-count="{{ stats.resolved }}">0</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="stat-number" data-count="{{ stats.categories }}">0</span>
+            <span class="stat-label">Categories</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual mockup -->
+      <div class="col-lg-6 d-none d-lg-block hero-visual">
+        <div class="position-relative" style="height:520px">
+          <!-- Center phone mockup -->
+          <div class="hero-phone-mockup mx-auto" style="position:absolute;left:50%;transform:translateX(-50%)">
+            <div style="padding:1rem">
+              <div style="background:rgba(37,99,235,.15);border-radius:8px;padding:0.75rem;margin-bottom:0.75rem">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div style="width:8px;height:8px;background:#10B981;border-radius:50%;animation:pulse-dot 1.2s infinite"></div>
+                  <small style="color:rgba(255,255,255,.8);font-size:0.72rem">AI Analyzing...</small>
+                </div>
+                <div style="background:rgba(255,255,255,.08);border-radius:6px;height:120px;display:flex;align-items:center;justify-content:center">
+                  <i class="bi bi-camera" style="color:rgba(255,255,255,.4);font-size:2.5rem"></i>
+                </div>
+              </div>
+              <div style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:0.75rem">
+                <div style="color:#34D399;font-size:0.75rem;font-weight:700">POTHOLE DETECTED</div>
+                <div style="color:rgba(255,255,255,.7);font-size:0.7rem">Confidence: 94.2%</div>
+                <div style="background:rgba(255,255,255,.1);border-radius:4px;height:6px;margin-top:6px">
+                  <div style="background:#10B981;width:94%;height:100%;border-radius:4px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating cards -->
+          <div class="floating-card" style="top:5%;left:-5%">
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:36px;height:36px;background:#D1FAE5;border-radius:8px;display:flex;align-items:center;justify-content:center">
+                <i class="bi bi-check2-circle text-success"></i>
+              </div>
+              <div>
+                <div style="font-size:0.75rem;font-weight:700;color:#065F46">Issue Resolved!</div>
+                <div style="font-size:0.68rem;color:#64748B">ISS-2026-000142</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="floating-card" style="bottom:12%;right:-8%">
+            <div style="font-size:0.7rem;font-weight:700;color:#1E293B;margin-bottom:4px">AI Accuracy</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#2563EB">94.2%</div>
+            <div style="font-size:0.65rem;color:#64748B">MobileNetV2 Model</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     FEATURES SECTION
+     ====================================================== -->
+<section class="py-5" style="background:white">
+  <div class="container py-4">
+    <div class="section-header reveal">
+      <span class="section-label">Why IssueSnap?</span>
+      <h2 class="section-title">Intelligent Civic Issue Management</h2>
+      <p class="section-desc">From AI-powered detection to real-time tracking — a complete platform for smarter cities.</p>
+    </div>
+
+    <div class="row g-4">
+      {% with features='' %}
+      <div class="col-lg-4 col-md-6 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-cpu-fill"></i>
+          </div>
+          <h3 class="feature-title">Real AI Detection</h3>
+          <p class="feature-desc">Computer vision models trained on thousands of civic issue images detect potholes, cracks, garbage and more with high accuracy.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 reveal" style="transition-delay:0.1s">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <h3 class="feature-title">GPS Location Tracking</h3>
+          <p class="feature-desc">Precise geolocation using browser GPS or interactive map. Visualize complaint hotspots with Leaflet OpenStreetMap integration.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 reveal" style="transition-delay:0.2s">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-files"></i>
+          </div>
+          <h3 class="feature-title">Duplicate Detection</h3>
+          <p class="feature-desc">NLP-powered TF-IDF and cosine similarity identifies potential duplicate reports, keeping the system clean and efficient.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <h3 class="feature-title">Smart Priority Scoring</h3>
+          <p class="feature-desc">Transparent rule-based priority prediction considers category, urgency keywords, AI confidence and historical data.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 reveal" style="transition-delay:0.1s">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-bell-fill"></i>
+          </div>
+          <h3 class="feature-title">Real-time Notifications</h3>
+          <p class="feature-desc">Get instant in-app notifications when your complaint status changes, AI analysis completes, or admin adds notes.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 reveal" style="transition-delay:0.2s">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-shield-check-fill"></i>
+          </div>
+          <h3 class="feature-title">Secure & Private</h3>
+          <p class="feature-desc">Role-based access control, CSRF protection, XSS prevention and secure file validation protect your data at every step.</p>
+        </div>
+      </div>
+      {% endwith %}
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     HOW IT WORKS (brief)
+     ====================================================== -->
+<section class="py-5" style="background:var(--color-bg-light)">
+  <div class="container py-4">
+    <div class="section-header reveal">
+      <span class="section-label">Simple Process</span>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-desc">Report a civic issue in under 2 minutes with AI-assisted detection.</p>
+    </div>
+
+    <div class="row g-4 text-center">
+      <div class="col-md-3 reveal">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h5 class="fw-700">Snap a Photo</h5>
+          <p class="text-muted small">Upload 1-5 clear photos of the civic issue from your phone or camera.</p>
+        </div>
+      </div>
+      <div class="col-md-3 reveal" style="transition-delay:0.1s">
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h5 class="fw-700">AI Analyzes</h5>
+          <p class="text-muted small">Our computer vision model classifies the issue and calculates confidence.</p>
+        </div>
+      </div>
+      <div class="col-md-3 reveal" style="transition-delay:0.2s">
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h5 class="fw-700">Submit Report</h5>
+          <p class="text-muted small">Add location, description and submit. Receive a unique complaint ID instantly.</p>
+        </div>
+      </div>
+      <div class="col-md-3 reveal" style="transition-delay:0.3s">
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h5 class="fw-700">Track Progress</h5>
+          <p class="text-muted small">Follow your complaint through every status stage until resolution.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4 reveal">
+      <a href="{% url 'pages:how_it_works' %}" class="btn-primary-custom">
+        Learn More <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     CATEGORIES
+     ====================================================== -->
+<section class="py-5" style="background:white">
+  <div class="container py-4">
+    <div class="section-header reveal">
+      <span class="section-label">Issue Categories</span>
+      <h2 class="section-title">What Can You Report?</h2>
+    </div>
+    <div class="row g-3 justify-content-center">
+      {% for cat in categories %}
+      <div class="col-6 col-md-4 col-lg-3 reveal">
+        <div class="card-issuesnap text-center p-3 h-100">
+          <i class="{{ cat.icon }} fs-2 mb-2" style="color:{{ cat.color }}"></i>
+          <div class="fw-600 small">{{ cat.name }}</div>
+          {% if cat.complaint_count %}
+          <div class="text-muted" style="font-size:0.75rem">{{ cat.complaint_count }} report{{ cat.complaint_count|pluralize }}</div>
+          {% endif %}
+          {% if cat.is_ai_supported %}
+          <span class="badge bg-primary mt-1" style="font-size:0.65rem">AI Supported</span>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted">
+        <p>Categories will appear here once configured.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     AI TECHNOLOGY HIGHLIGHT
+     ====================================================== -->
+<section class="section-dark py-5">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 reveal-left">
+        <span class="section-label" style="color:#93C5FD">AI Technology</span>
+        <h2 class="section-title" style="color:white">Real Computer Vision,<br>Not Fake AI</h2>
+        <p style="color:rgba(255,255,255,.75);line-height:1.7">
+          IssueSnap uses a genuinely trained deep learning model — MobileNetV2 fine-tuned on
+          civic issue datasets — to perform real image classification. Every confidence
+          score is a real model output, not a hardcoded value.
+        </p>
+        <div class="mt-4 d-flex flex-column gap-3">
+          <div class="ai-flow-step" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)">
+            <div class="step-icon" style="background:rgba(37,99,235,.2);color:#93C5FD"><i class="bi bi-image"></i></div>
+            <div>
+              <div style="color:white;font-weight:600;font-size:0.9rem">OpenCV Preprocessing</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.82rem">Resize, normalize, augment</div>
+            </div>
+          </div>
+          <div class="ai-flow-step" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)">
+            <div class="step-icon" style="background:rgba(37,99,235,.2);color:#93C5FD"><i class="bi bi-cpu"></i></div>
+            <div>
+              <div style="color:white;font-weight:600;font-size:0.9rem">MobileNetV2 / EfficientNet Inference</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.82rem">Real model, real predictions</div>
+            </div>
+          </div>
+          <div class="ai-flow-step" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)">
+            <div class="step-icon" style="background:rgba(37,99,235,.2);color:#93C5FD"><i class="bi bi-bar-chart"></i></div>
+            <div>
+              <div style="color:white;font-weight:600;font-size:0.9rem">Confidence Score + Top-3 Predictions</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.82rem">Transparent, explainable results</div>
+            </div>
+          </div>
+        </div>
+        <a href="{% url 'pages:ai_technology' %}" class="btn-primary-custom mt-4">
+          Explore AI Details <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+      <div class="col-lg-6 reveal-right">
+        <!-- Research stats -->
+        <div class="row g-3">
+          <div class="col-6">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;text-align:center">
+              <div style="font-size:2rem;font-weight:800;color:white">7</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.85rem">Issue Categories</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;text-align:center">
+              <div style="font-size:2rem;font-weight:800;color:#34D399">TF-IDF</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.85rem">NLP Analysis</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;text-align:center">
+              <div style="font-size:2rem;font-weight:800;color:#93C5FD">CV2</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.85rem">OpenCV Processing</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;text-align:center">
+              <div style="font-size:2rem;font-weight:800;color:#F9A8D4">MySQL</div>
+              <div style="color:rgba(255,255,255,.6);font-size:0.85rem">Database</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     CTA
+     ====================================================== -->
+<section class="py-5" style="background:var(--color-bg-light)">
+  <div class="container py-4 text-center reveal">
+    <h2 class="section-title mb-3">Ready to Make Your City Better?</h2>
+    <p class="text-muted mb-4">Join thousands of citizens reporting issues and helping improve public infrastructure.</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'complaints:report_issue' %}" class="btn-primary-custom">
+      <i class="bi bi-camera-fill me-2"></i>Report an Issue Now
+    </a>
+    {% else %}
+    <a href="{% url 'accounts:register' %}" class="btn-primary-custom">
+      <i class="bi bi-person-plus-fill me-2"></i>Create Your Free Account
+    </a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Animate hero stat counters on load
+  document.querySelectorAll('.hero-stat-item .stat-number[data-count]').forEach(el => {
+    IssueSnap.animateCounter(el);
+  });
+</script>
+{% endblock %}

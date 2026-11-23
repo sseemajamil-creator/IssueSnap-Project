@@ -1,0 +1,98 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static humanize %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h5 class="fw-700 mb-1">Notifications</h5>
+    {% if unread_count %}<span class="badge bg-danger">{{ unread_count }} unread</span>{% endif %}
+  </div>
+  <button class="btn btn-outline-secondary btn-sm" id="btn-mark-all-read" style="border-radius:8px">
+    <i class="bi bi-check2-all me-1"></i>Mark All Read
+  </button>
+</div>
+
+{% for notif in notifications %}
+<div class="card-issuesnap mb-2 p-3 {% if not notif.is_read %}border-start border-4 border-primary{% endif %}"
+     id="notif-{{ notif.id }}">
+  <div class="d-flex gap-3 align-items-start">
+    <div class="{{ notif.get_badge_class }} badge" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">
+      <i class="bi bi-{{ notif.get_icon }}" style="font-size:1rem"></i>
+    </div>
+    <div class="flex-1">
+      <div class="d-flex justify-content-between gap-2">
+        <div class="fw-600 {% if not notif.is_read %}text-dark{% else %}text-muted{% endif %}">
+          {{ notif.title }}
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-shrink-0">
+          <span class="text-muted small">{{ notif.created_at|timesince }} ago</span>
+          {% if not notif.is_read %}
+          <button class="btn btn-sm btn-outline-primary mark-read-btn" data-id="{{ notif.id }}"
+                  style="border-radius:6px;padding:2px 8px;font-size:0.75rem">Read</button>
+          {% endif %}
+        </div>
+      </div>
+      <p class="text-muted small mb-0 mt-1">{{ notif.message }}</p>
+      {% if notif.complaint %}
+      <a href="{% url 'complaints:complaint_detail' notif.complaint.complaint_id %}"
+         class="text-primary small text-decoration-none mt-1 d-inline-block">
+        View {{ notif.complaint.complaint_id }} <i class="bi bi-arrow-right"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-bell-slash fs-1 d-block mb-3"></i>
+  <p>No notifications yet. They'll appear here when there are updates to your complaints.</p>
+</div>
+{% endfor %}
+
+{% if notifications.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if notifications.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{ notifications.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+    {% endif %}
+    <li class="page-item active"><a class="page-link" href="#">{{ notifications.number }}</a></li>
+    {% if notifications.has_next %}
+    <li class="page-item"><a class="page-link" href="?page={{ notifications.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Mark individual as read
+document.querySelectorAll('.mark-read-btn').forEach(btn => {
+  btn.addEventListener('click', async function() {
+    const id = this.dataset.id;
+    await fetch(`/notifications/${id}/mark-read/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': IssueSnap.getCookie('csrftoken') }
+    });
+    const card = document.getElementById(`notif-${id}`);
+    if (card) {
+      card.classList.remove('border-start', 'border-4', 'border-primary');
+      this.remove();
+    }
+  });
+});
+
+// Mark all as read
+document.getElementById('btn-mark-all-read')?.addEventListener('click', async function() {
+  await fetch('/notifications/mark-all-read/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': IssueSnap.getCookie('csrftoken') }
+  });
+  document.querySelectorAll('.card-issuesnap.border-primary').forEach(c => {
+    c.classList.remove('border-start', 'border-4', 'border-primary');
+  });
+  document.querySelectorAll('.mark-read-btn').forEach(b => b.remove());
+  IssueSnap.showToast('All notifications marked as read.', 'success');
+});
+</script>
+{% endblock %}

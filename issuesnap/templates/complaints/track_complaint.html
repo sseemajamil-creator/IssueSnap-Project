@@ -1,0 +1,88 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static humanize %}
+{% load issuesnap_tags %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <!-- Search form -->
+    <div class="card-issuesnap p-4 mb-4">
+      <h5 class="fw-700 mb-3"><i class="bi bi-search me-2 text-primary"></i>Track Your Complaint</h5>
+      <form method="get">
+        <div class="input-group input-group-lg">
+          <input type="text" name="complaint_id" class="form-control"
+                 placeholder="Enter complaint ID: ISS-2026-000001"
+                 value="{{ searched_id }}" style="border-radius:12px 0 0 12px">
+          <button type="submit" class="btn btn-primary" style="border-radius:0 12px 12px 0;padding:0 1.5rem">
+            <i class="bi bi-search me-2"></i>Track
+          </button>
+        </div>
+      </form>
+    </div>
+
+    {% if complaint %}
+    <!-- Complaint found -->
+    <div class="card-issuesnap p-4">
+      <div class="d-flex justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+          <span class="complaint-id fs-6">{{ complaint.complaint_id }}</span>
+          <h4 class="fw-800 mt-2">{{ complaint.title }}</h4>
+        </div>
+        <span class="badge-status badge-{{ complaint.status }} align-self-start" style="font-size:0.9rem">
+          {{ complaint.get_status_display }}
+        </span>
+      </div>
+
+      <!-- Progress tracker -->
+      <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-between position-relative mb-3">
+          <div class="position-absolute" style="top:16px;left:0;right:0;height:2px;background:#E2E8F0;z-index:0"></div>
+          {% with cs=complaint.status %}
+          {% for step_status in "pending,in_progress,processing,resolved,completed"|split:"," %}
+          <div class="d-flex flex-column align-items-center position-relative z-1">
+            <div style="width:32px;height:32px;border-radius:50%;border:3px solid {% if cs == step_status %}#2563EB{% else %}#E2E8F0{% endif %};background:{% if cs == step_status %}#2563EB{% else %}white{% endif %};display:flex;align-items:center;justify-content:center">
+              {% if cs == step_status %}<i class="bi bi-check2 text-white" style="font-size:0.8rem"></i>{% endif %}
+            </div>
+            <span class="mt-1 small text-muted text-center" style="font-size:0.68rem;max-width:60px">{{ step_status|replace_underscore }}</span>
+          </div>
+          {% endfor %}
+          {% endwith %}
+        </div>
+      </div>
+
+      <!-- Status history -->
+      <h6 class="fw-700 mb-3">Status Timeline</h6>
+      <div class="timeline">
+        {% for item in complaint.status_history.all %}
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="d-flex justify-content-between gap-2">
+              <span class="badge-status badge-{{ item.new_status }}" style="font-size:0.75rem">{{ item.get_new_status_display }}</span>
+              <span class="text-muted small">{{ item.changed_at|date:"M d, Y H:i" }}</span>
+            </div>
+            {% if item.note %}
+            <p class="text-muted small mt-1 mb-0">{{ item.note }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted small">No status history available.</p>
+        {% endfor %}
+      </div>
+    </div>
+    {% elif searched_id %}
+    <div class="card-issuesnap p-4 text-center">
+      <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+      <h5>Complaint Not Found</h5>
+      <p class="text-muted">No complaint with ID "{{ searched_id }}" was found in your account.</p>
+    </div>
+    {% else %}
+    <div class="card-issuesnap p-4 text-center text-muted">
+      <i class="bi bi-clipboard2-check fs-1 d-block mb-3"></i>
+      <p>Enter a complaint ID above to track its progress.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

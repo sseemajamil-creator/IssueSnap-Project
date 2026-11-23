@@ -1,0 +1,150 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static humanize %}
+
+{% block dashboard_content %}
+<!-- Welcome -->
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+  <div>
+    <h4 class="fw-800 mb-1">Welcome back, {{ user.get_short_name }} 👋</h4>
+    <p class="text-muted mb-0">Here's an overview of your civic reports.</p>
+  </div>
+  <a href="{% url 'complaints:report_issue' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-circle-fill"></i> Report New Issue
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(37,99,235,.1);color:var(--color-primary)">
+        <i class="bi bi-clipboard2-data-fill"></i>
+      </div>
+      <div class="stat-number text-navy" data-count="{{ stats.total }}">0</div>
+      <div class="stat-label">Total Complaints</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#FEF3C7;color:#92400E">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="stat-number" style="color:#92400E" data-count="{{ stats.pending }}">0</div>
+      <div class="stat-label">Pending Review</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#DBEAFE;color:#1E40AF">
+        <i class="bi bi-arrow-repeat"></i>
+      </div>
+      <div class="stat-number" style="color:#1E40AF" data-count="{{ stats.in_progress }}">0</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#D1FAE5;color:#065F46">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="stat-number" style="color:#065F46" data-count="{{ stats.resolved }}">0</div>
+      <div class="stat-label">Resolved</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Complaints -->
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card-issuesnap p-0">
+      <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+        <h6 class="fw-700 mb-0">Recent Complaints</h6>
+        <a href="{% url 'complaints:my_complaints' %}" class="btn btn-sm btn-outline-primary" style="border-radius:8px">View All</a>
+      </div>
+      <div class="p-0">
+        {% for complaint in recent_complaints %}
+        <div class="d-flex gap-3 p-3 border-bottom complaint-row" style="transition:background 0.15s">
+          {% with img=complaint.get_primary_image %}
+          {% if img %}
+          <img src="{{ img.image.url }}" class="rounded" style="width:60px;height:60px;object-fit:cover;flex-shrink:0" alt="Complaint image">
+          {% else %}
+          <div class="rounded bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:60px;height:60px">
+            <i class="bi bi-image text-muted"></i>
+          </div>
+          {% endif %}
+          {% endwith %}
+          <div class="flex-1 min-w-0">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <span class="complaint-id">{{ complaint.complaint_id }}</span>
+                <div class="fw-600 small mt-1 text-truncate">{{ complaint.title }}</div>
+                <div class="text-muted small">{{ complaint.district|title }} · {{ complaint.submitted_at|date:"M d, Y" }}</div>
+              </div>
+              <span class="badge-status badge-{{ complaint.status }} flex-shrink-0">{{ complaint.get_status_display }}</span>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-clipboard2 fs-2 d-block mb-2"></i>
+          <p>No complaints yet. <a href="{% url 'complaints:report_issue' %}">Report your first issue</a>.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions + Notifications -->
+  <div class="col-lg-4">
+    <!-- Quick actions -->
+    <div class="card-issuesnap p-3 mb-4">
+      <h6 class="fw-700 mb-3">Quick Actions</h6>
+      <div class="d-flex flex-column gap-2">
+        <a href="{% url 'complaints:report_issue' %}" class="btn btn-primary w-100 text-start" style="border-radius:8px">
+          <i class="bi bi-camera-fill me-2"></i> Report New Issue
+        </a>
+        <a href="{% url 'complaints:track_complaint' %}" class="btn btn-outline-secondary w-100 text-start" style="border-radius:8px">
+          <i class="bi bi-search me-2"></i> Track Complaint
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary w-100 text-start" style="border-radius:8px">
+          <i class="bi bi-person-circle me-2"></i> My Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent notifications -->
+    <div class="card-issuesnap p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-700 mb-0">Notifications</h6>
+        <a href="{% url 'notifications:list' %}" class="small text-primary text-decoration-none">View all</a>
+      </div>
+      {% for notif in recent_notifications %}
+      <div class="d-flex gap-2 py-2 {% if not forloop.last %}border-bottom{% endif %}">
+        <div class="mt-1 flex-shrink-0">
+          <span class="{{ notif.get_badge_class }} badge" style="width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0">
+            <i class="bi bi-{{ notif.get_icon }}" style="font-size:0.75rem"></i>
+          </span>
+        </div>
+        <div>
+          <div class="small fw-600 {% if not notif.is_read %}text-dark{% else %}text-muted{% endif %}">{{ notif.title }}</div>
+          <div class="small text-muted">{{ notif.created_at|timesince }} ago</div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted small text-center py-2">No new notifications</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('[data-count]').forEach(el => IssueSnap.animateCounter(el));
+// Hover effect on complaint rows
+document.querySelectorAll('.complaint-row').forEach(row => {
+  row.addEventListener('mouseenter', () => row.style.background = '#F8FAFC');
+  row.addEventListener('mouseleave', () => row.style.background = '');
+});
+</script>
+{% endblock %}

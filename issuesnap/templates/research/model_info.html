@@ -1,0 +1,81 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">Research</span>
+    <h1 class="section-title" style="color:white">Model Information</h1>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4">
+    {% if active_model %}
+    <div class="card-issuesnap p-4 mb-4 border-primary" style="border-width:2px!important">
+      <div class="d-flex justify-content-between gap-3 mb-3">
+        <div>
+          <span class="badge bg-success mb-2">Currently Active</span>
+          <h4 class="fw-700">{{ active_model.name }} v{{ active_model.version }}</h4>
+        </div>
+        <div class="text-end">
+          <div class="fw-700 fs-3 text-primary">{{ active_model.accuracy|floatformat:1|default:"Pending" }}%</div>
+          <div class="text-muted small">Test Accuracy</div>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-3 text-center">
+          <div class="fw-700 fs-5">{{ active_model.precision|floatformat:1|default:"—" }}%</div>
+          <div class="text-muted small">Precision</div>
+        </div>
+        <div class="col-md-3 text-center">
+          <div class="fw-700 fs-5">{{ active_model.recall|floatformat:1|default:"—" }}%</div>
+          <div class="text-muted small">Recall</div>
+        </div>
+        <div class="col-md-3 text-center">
+          <div class="fw-700 fs-5">{{ active_model.f1_score|floatformat:1|default:"—" }}%</div>
+          <div class="text-muted small">F1-Score</div>
+        </div>
+        <div class="col-md-3 text-center">
+          <div class="fw-700 fs-5">{{ active_model.inference_time_ms|floatformat:0|default:"—" }}ms</div>
+          <div class="text-muted small">Avg Inference</div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning mb-4">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      No trained model is currently active. Train a model and register it via the Django admin at
+      <code>/django-admin/ai_engine/modelversion/</code>.
+    </div>
+    {% endif %}
+
+    {% for model in models %}
+    <div class="card-issuesnap p-4 mb-3 reveal">
+      <div class="d-flex justify-content-between gap-3">
+        <div>
+          <span class="badge {% if model.is_active %}bg-success{% else %}bg-secondary{% endif %} me-2">
+            {% if model.is_active %}Active{% else %}Inactive{% endif %}
+          </span>
+          <span class="badge {% if model.is_trained %}bg-primary{% else %}bg-warning text-dark{% endif %}">
+            {% if model.is_trained %}Trained{% else %}Not Trained{% endif %}
+          </span>
+          <h5 class="fw-700 mt-2">{{ model.name }} v{{ model.version }}</h5>
+          <div class="text-muted small">{{ model.get_model_type_display }} · Input: {{ model.input_size }}×{{ model.input_size }} · {{ model.num_classes }} classes</div>
+        </div>
+        <div class="text-end">
+          {% if model.accuracy %}
+          <div class="fw-700 fs-4 text-primary">{{ model.accuracy|floatformat:1 }}%</div>
+          <div class="text-muted small">Accuracy</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-cpu fs-1 d-block mb-3"></i>
+      <p>No model versions registered yet. Train models using <code>ai/training/train_model.py</code>.</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

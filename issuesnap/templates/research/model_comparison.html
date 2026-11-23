@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">Research</span>
+    <h1 class="section-title" style="color:white">Model Comparison</h1>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4">
+    {% if models %}
+    <div class="chart-container mb-5 reveal">
+      <h6 class="fw-700 mb-3">Model Performance Comparison</h6>
+      <canvas id="comparisonChart" height="300"></canvas>
+    </div>
+
+    <div class="table-issuesnap overflow-hidden reveal">
+      <table class="table mb-0">
+        <thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Inference</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for m in models %}
+          <tr>
+            <td class="fw-600">{{ m.name }} v{{ m.version }}</td>
+            <td>{% if m.accuracy %}{{ m.accuracy|floatformat:1 }}%{% else %}—{% endif %}</td>
+            <td>{% if m.precision %}{{ m.precision|floatformat:1 }}%{% else %}—{% endif %}</td>
+            <td>{% if m.recall %}{{ m.recall|floatformat:1 }}%{% else %}—{% endif %}</td>
+            <td>{% if m.f1_score %}{{ m.f1_score|floatformat:1 }}%{% else %}—{% endif %}</td>
+            <td>{% if m.inference_time_ms %}{{ m.inference_time_ms|floatformat:0 }}ms{% else %}—{% endif %}</td>
+            <td>
+              {% if m.is_active %}<span class="badge bg-success">Active</span>
+              {% elif m.is_trained %}<span class="badge bg-secondary">Trained</span>
+              {% else %}<span class="badge bg-warning text-dark">Untrained</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No model versions available yet. Train models first.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if models %}
+<script>
+const data = {{ comparison_data|safe }};
+if (data.length) {
+  new Chart(document.getElementById('comparisonChart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.name),
+      datasets: [
+        { label: 'Accuracy', data: data.map(d => d.accuracy ? d.accuracy * 100 : null), backgroundColor: '#2563EB', borderRadius: 4 },
+        { label: 'F1-Score', data: data.map(d => d.f1 ? d.f1 * 100 : null), backgroundColor: '#10B981', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+    }
+  });
+}
+</script>
+{% endif %}
+{% endblock %}

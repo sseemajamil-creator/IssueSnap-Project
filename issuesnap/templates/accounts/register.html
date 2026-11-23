@@ -1,0 +1,90 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="min-height:100vh;background:linear-gradient(135deg,#0B1730,#142B4A);padding-top:100px;padding-bottom:60px">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8">
+        <div class="text-center mb-4">
+          <a href="{% url 'pages:home' %}" class="navbar-brand-logo text-decoration-none justify-content-center d-flex">
+            <div class="brand-icon"><i class="bi bi-camera-fill"></i></div>
+            <span class="brand-text ms-2">Issue<span>Snap</span></span>
+          </a>
+        </div>
+
+        <div class="card border-0 shadow-lg" style="border-radius:20px">
+          <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+              <h2 class="fw-800">Create Account</h2>
+              <p class="text-muted">Join IssueSnap and start reporting civic issues with AI assistance.</p>
+            </div>
+
+            <form method="post" novalidate>
+              {% csrf_token %}
+              <div class="row g-3">
+                <div class="col-6">
+                  <label class="form-label">First Name *</label>
+                  {{ form.first_name }}
+                  {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Last Name *</label>
+                  {{ form.last_name }}
+                  {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Email Address *</label>
+                  {{ form.email }}
+                  {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Username *</label>
+                  {{ form.username }}
+                  {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Password *</label>
+                  {{ form.password }}
+                  {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Confirm Password *</label>
+                  {{ form.confirm_password }}
+                  {% if form.confirm_password.errors %}<div class="text-danger small">{{ form.confirm_password.errors|join:", " }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    {{ form.agree_terms }}
+                    <label class="form-check-label small" for="{{ form.agree_terms.id_for_label }}">
+                      I agree to the <a href="{% url 'pages:terms_conditions' %}" target="_blank">Terms & Conditions</a>
+                      and <a href="{% url 'pages:privacy_policy' %}" target="_blank">Privacy Policy</a>
+                    </label>
+                  </div>
+                  {% if form.agree_terms.errors %}<div class="text-danger small">{{ form.agree_terms.errors|join:", " }}</div>{% endif %}
+                </div>
+                {% if form.non_field_errors %}
+                <div class="col-12">
+                  <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary w-100 py-3 fw-600" style="border-radius:12px;font-size:1rem">
+                    <i class="bi bi-person-plus me-2"></i>Create Account
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div class="text-center mt-4">
+              <p class="text-muted">Already have an account?
+                <a href="{% url 'accounts:login' %}" class="text-primary fw-600">Sign In</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

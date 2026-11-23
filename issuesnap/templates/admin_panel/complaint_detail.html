@@ -1,0 +1,241 @@
+{% extends 'base/admin_base.html' %}
+{% load static humanize %}
+
+{% block admin_content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <!-- Complaint header -->
+    <div class="card-issuesnap p-4 mb-4">
+      <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+        <div>
+          <span class="complaint-id">{{ complaint.complaint_id }}</span>
+          <h4 class="fw-800 mt-2">{{ complaint.title }}</h4>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge-status badge-{{ complaint.status }}">{{ complaint.get_status_display }}</span>
+          <span class="badge-status badge-{{ complaint.priority }}">{{ complaint.get_priority_display }}</span>
+        </div>
+      </div>
+      <p>{{ complaint.description }}</p>
+      <div class="text-muted small">
+        <span class="me-3"><i class="bi bi-geo-alt me-1"></i>{{ complaint.district|title }}, {{ complaint.area }}</span>
+        <span class="me-3"><i class="bi bi-person me-1"></i>{{ complaint.citizen.get_full_name }} ({{ complaint.citizen.email }})</span>
+        <span><i class="bi bi-calendar me-1"></i>{{ complaint.submitted_at|date:"M d, Y H:i" }}</span>
+      </div>
+    </div>
+
+    <!-- Images -->
+    {% if images %}
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3">Images</h6>
+      <div class="row g-2">
+        {% for img in images %}
+        <div class="col-md-4 col-6">
+          <a href="{{ img.image.url }}" target="_blank">
+            <img src="{{ img.image.url }}" class="img-fluid rounded" style="width:100%;height:150px;object-fit:cover">
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Results -->
+    {% if ai_results %}
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-cpu me-2 text-primary"></i>AI Classifications</h6>
+      {% for r in ai_results %}
+      <div class="ai-result-card mb-3">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="fw-700">{{ r.predicted_class }}</span>
+          <div class="d-flex gap-2">
+            {% if r.admin_verified is None %}
+            <form method="post" action="." class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="verify_ai" value="{{ r.id }}">
+              <input type="hidden" name="verified" value="1">
+              <button type="submit" class="btn btn-sm btn-success" style="border-radius:6px">✓ Confirm</button>
+            </form>
+            <form method="post" action="." class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="verify_ai" value="{{ r.id }}">
+              <input type="hidden" name="verified" value="0">
+              <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius:6px">✗ Reject</button>
+            </form>
+            {% elif r.admin_verified %}
+            <span class="badge bg-success">Admin Confirmed</span>
+            {% else %}
+            <span class="badge bg-danger">Admin Rejected</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="d-flex justify-content-between small mb-1">
+          <span>Confidence</span><strong>{{ r.confidence_score|floatformat:1 }}%</strong>
+        </div>
+        <div class="ai-confidence-bar"><div class="ai-confidence-fill" style="width:{{ r.confidence_score }}%"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Status Update Form -->
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-arrow-repeat me-2 text-primary"></i>Update Status</h6>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            {{ form.status }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Priority</label>
+            {{ form.priority }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Admin Notes</label>
+            {{ form.admin_notes }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Status Update Note</label>
+            <textarea name="note" class="form-control" rows="2" placeholder="Visible in status history..."></textarea>
+          </div>
+          {% if form.rejection_reason %}
+          <div class="col-12" id="rejection-reason-block" style="display:none">
+            <label class="form-label">Rejection Reason</label>
+            {{ form.rejection_reason }}
+          </div>
+          {% endif %}
+          <div class="col-12">
+            <button type="submit" class="btn-primary-custom">
+              <i class="bi bi-save me-2"></i>Update Complaint
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Assign complaint -->
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-person-check me-2 text-primary"></i>Assign to Admin</h6>
+      <form method="post" action="{% url 'admin_complaints:assign_complaint' complaint.complaint_id %}">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <select name="admin_id" class="form-select" required>
+              <option value="">Select Administrator</option>
+              {% for admin in admin_users %}
+              <option value="{{ admin.id }}" {% if complaint.assigned_to == admin %}selected{% endif %}>
+                {{ admin.get_full_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <input type="text" name="note" class="form-control" placeholder="Assignment note (optional)">
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary" style="border-radius:10px">
+              <i class="bi bi-person-check me-2"></i>Assign
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Status History -->
+    <div class="card-issuesnap p-4">
+      <h6 class="fw-700 mb-4">Status History</h6>
+      <div class="timeline">
+        {% for item in status_history %}
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="d-flex justify-content-between gap-2">
+              <span class="badge-status badge-{{ item.new_status }}" style="font-size:0.75rem">{{ item.new_status }}</span>
+              <span class="text-muted small">{{ item.changed_at|date:"M d, Y H:i" }}</span>
+            </div>
+            {% if item.note %}<p class="text-muted small mt-1 mb-0">{{ item.note }}</p>{% endif %}
+            {% if item.changed_by %}<span class="text-muted small">By {{ item.changed_by.get_full_name }}</span>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right sidebar -->
+  <div class="col-lg-4">
+    <!-- Location map -->
+    {% if complaint.latitude and complaint.longitude %}
+    <div class="card-issuesnap p-3 mb-4">
+      <h6 class="fw-700 mb-2">Location</h6>
+      <div id="complaint-map" style="height:200px;border-radius:10px;overflow:hidden;border:1px solid #E2E8F0"></div>
+      <div class="mt-2 small text-muted">
+        {{ complaint.district|title }}, {{ complaint.area }}<br>
+        {{ complaint.address }}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Priority prediction -->
+    {% if priority_pred %}
+    <div class="card-issuesnap p-3 mb-4">
+      <h6 class="fw-700 mb-2"><i class="bi bi-graph-up me-2 text-primary"></i>Priority Prediction</h6>
+      <div class="badge-status badge-{{ priority_pred.predicted_priority }} d-inline-block mb-2">
+        {{ priority_pred.predicted_priority|title }} Priority
+      </div>
+      <div class="text-muted small">Method: {{ priority_pred.method }}</div>
+      {% if priority_pred.reasoning %}
+      <div class="mt-2 small">
+        {% for key, val in priority_pred.reasoning.items %}
+        <div class="mb-1"><strong>{{ key|title }}:</strong> {{ val }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Duplicate matches -->
+    {% if duplicate_matches %}
+    <div class="card-issuesnap p-3 border border-warning">
+      <h6 class="fw-700 mb-3 text-warning"><i class="bi bi-files me-2"></i>Duplicate Matches</h6>
+      {% for m in duplicate_matches %}
+      <div class="bg-warning bg-opacity-10 rounded p-2 mb-2 small">
+        <div class="fw-600">{{ m.original_complaint.complaint_id }}</div>
+        <div>Similarity: {{ m.similarity_score|floatformat:1 }}%</div>
+        {% if m.geographic_distance_km %}
+        <div>Distance: {{ m.geographic_distance_km }}km</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <a href="{% url 'admin_complaints:review_duplicates' %}" class="btn btn-warning btn-sm w-100 mt-2" style="border-radius:8px">
+        Review Duplicates
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if complaint.latitude and complaint.longitude %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const map = L.map('complaint-map').setView([{{ complaint.latitude }}, {{ complaint.longitude }}], 15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+    referrerPolicy: 'no-referrer-when-downgrade',
+  }).addTo(map);
+  L.marker([{{ complaint.latitude }}, {{ complaint.longitude }}]).addTo(map);
+  setTimeout(() => map.invalidateSize(), 200);
+});
+// Show rejection reason when status is rejected
+document.querySelector('[name="status"]')?.addEventListener('change', function() {
+  const block = document.getElementById('rejection-reason-block');
+  if (block) block.style.display = this.value === 'rejected' ? 'block' : 'none';
+});
+</script>
+{% endif %}
+{% endblock %}

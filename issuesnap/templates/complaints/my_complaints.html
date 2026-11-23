@@ -1,0 +1,145 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static humanize %}
+
+{% block dashboard_content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+  <div>
+    <h5 class="fw-700 mb-1">My Complaints</h5>
+    <p class="text-muted small mb-0">{{ total_count }} complaint{{ total_count|pluralize }} found</p>
+  </div>
+  <a href="{% url 'complaints:report_issue' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-circle-fill"></i> New Complaint
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card-issuesnap p-3 mb-4">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-6 col-md-4 col-lg-2">
+      {{ filter_form.status }}
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      {{ filter_form.priority }}
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      {{ filter_form.category }}
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      {{ filter_form.search }}
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <button type="submit" class="btn btn-primary w-100" style="border-radius:8px">
+        <i class="bi bi-funnel me-1"></i> Filter
+      </button>
+    </div>
+    <div class="col-6 col-md-4 col-lg-1">
+      <a href="{% url 'complaints:my_complaints' %}" class="btn btn-outline-secondary w-100" style="border-radius:8px" title="Clear filters">
+        <i class="bi bi-x-circle"></i>
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Complaints list -->
+{% for complaint in complaints %}
+<div class="card-issuesnap mb-3 p-0">
+  <div class="p-3 d-flex gap-3">
+    <!-- Image -->
+    {% with img=complaint.get_primary_image %}
+    {% if img %}
+    <a href="{% url 'complaints:complaint_detail' complaint.complaint_id %}">
+      <img src="{{ img.image.url }}" class="rounded" style="width:80px;height:80px;object-fit:cover;flex-shrink:0" alt="Issue image">
+    </a>
+    {% else %}
+    <div class="rounded bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:80px;height:80px">
+      <i class="bi bi-image text-muted fs-3"></i>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Details -->
+    <div class="flex-1 min-w-0">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+        <div>
+          <span class="complaint-id">{{ complaint.complaint_id }}</span>
+          <a href="{% url 'complaints:complaint_detail' complaint.complaint_id %}"
+             class="d-block fw-700 mt-1 text-decoration-none text-dark hover-primary">
+            {{ complaint.title }}
+          </a>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge-status badge-{{ complaint.status }}">{{ complaint.get_status_display }}</span>
+          <span class="badge-status badge-{{ complaint.priority }}">{{ complaint.get_priority_display }}</span>
+        </div>
+      </div>
+
+      <div class="text-muted small mb-2">{{ complaint.description|truncatechars:100 }}</div>
+
+      <div class="d-flex flex-wrap gap-3 small text-muted">
+        <span><i class="bi bi-geo-alt me-1"></i>{{ complaint.district|title }}, {{ complaint.area }}</span>
+        <span><i class="bi bi-tag me-1"></i>{{ complaint.category.name|default:"Uncategorized" }}</span>
+        <span><i class="bi bi-calendar me-1"></i>{{ complaint.submitted_at|date:"M d, Y" }}</span>
+        {% if complaint.ai_analyzed %}
+        <span class="text-primary"><i class="bi bi-cpu me-1"></i>AI Analyzed</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex flex-column gap-2 flex-shrink-0">
+      <a href="{% url 'complaints:complaint_detail' complaint.complaint_id %}"
+         class="btn btn-sm btn-outline-primary" style="border-radius:8px">
+        <i class="bi bi-eye"></i>
+      </a>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="text-center py-5">
+  <i class="bi bi-clipboard2 fs-1 text-muted d-block mb-3"></i>
+  <h5 class="text-muted">No complaints found</h5>
+  <p class="text-muted">
+    {% if request.GET %}
+    Try adjusting your filters.
+    {% else %}
+    You haven't submitted any complaints yet.
+    {% endif %}
+  </p>
+  <a href="{% url 'complaints:report_issue' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-circle me-2"></i>Report Your First Issue
+  </a>
+</div>
+{% endfor %}
+
+<!-- Pagination -->
+{% if complaints.has_other_pages %}
+<nav class="mt-4" aria-label="Complaints pagination">
+  <ul class="pagination justify-content-center">
+    {% if complaints.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ complaints.previous_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">
+        <i class="bi bi-chevron-left"></i>
+      </a>
+    </li>
+    {% endif %}
+
+    {% for page_num in complaints.paginator.page_range %}
+    {% if complaints.number == page_num %}
+    <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
+    {% elif page_num > complaints.number|add:'-3' and page_num < complaints.number|add:'3' %}
+    <li class="page-item"><a class="page-link" href="?page={{ page_num }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">{{ page_num }}</a></li>
+    {% endif %}
+    {% endfor %}
+
+    {% if complaints.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ complaints.next_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">
+        <i class="bi bi-chevron-right"></i>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

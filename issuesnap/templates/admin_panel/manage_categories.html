@@ -1,0 +1,72 @@
+{% extends 'base/admin_base.html' %}
+
+{% block admin_content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <h5 class="fw-700 mb-4">Complaint Categories</h5>
+    <div class="table-issuesnap overflow-hidden">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Name</th><th>Slug</th><th>AI</th><th>Active</th><th>Complaints</th></tr></thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="{{ cat.icon }}" style="color:{{ cat.color }}"></i>
+                  <span class="fw-500">{{ cat.name }}</span>
+                </div>
+              </td>
+              <td class="text-muted small">{{ cat.slug }}</td>
+              <td>{% if cat.is_ai_supported %}<span class="badge bg-primary" style="font-size:0.7rem">Yes</span>{% else %}—{% endif %}</td>
+              <td>{% if cat.is_active %}<span class="badge bg-success" style="font-size:0.7rem">Active</span>{% else %}<span class="badge bg-secondary" style="font-size:0.7rem">Inactive</span>{% endif %}</td>
+              <td class="fw-600">{{ cat.complaint_count }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No categories yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card-issuesnap p-4">
+      <h6 class="fw-700 mb-3">Add Category</h6>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label small fw-600">Name *</label>
+          <input type="text" name="name" class="form-control" required placeholder="e.g. Road Pothole">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-600">Slug *</label>
+          <input type="text" name="slug" class="form-control" required placeholder="e.g. road-pothole">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-600">Bootstrap Icon</label>
+          <input type="text" name="icon" class="form-control" value="bi-exclamation-triangle" placeholder="e.g. bi-road">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-600">Color</label>
+          <input type="color" name="color" class="form-control form-control-color w-100" value="#2563EB">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-600">Description</label>
+          <textarea name="description" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" name="is_ai_supported" class="form-check-input" id="ai_supported">
+          <label class="form-check-label small" for="ai_supported">AI Supported</label>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-600">AI Class Name</label>
+          <input type="text" name="ai_class_name" class="form-control" placeholder="e.g. pothole">
+        </div>
+        <button type="submit" class="btn btn-primary w-100" style="border-radius:10px">Add Category</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

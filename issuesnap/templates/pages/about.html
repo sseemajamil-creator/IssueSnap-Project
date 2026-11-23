@@ -1,0 +1,81 @@
+{% extends 'base/base.html' %}
+{% load issuesnap_tags %}
+
+{% block content %}
+<!-- Hero -->
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">About IssueSnap</span>
+    <h1 class="section-title" style="color:white">AI-Powered Civic Issue Reporting</h1>
+    <p class="section-desc" style="color:rgba(255,255,255,.75);max-width:600px;margin:0 auto">
+      A final-year engineering research project that applies cutting-edge AI to solve real civic infrastructure problems.
+    </p>
+  </div>
+</div>
+
+<!-- Mission -->
+<section class="py-5">
+  <div class="container py-4">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6 reveal-left">
+        <span class="section-label">Our Mission</span>
+        <h2 class="section-title">Making Cities Smarter, One Issue at a Time</h2>
+        <p class="text-muted mb-3">
+          IssueSnap bridges the gap between citizens and municipal authorities using artificial intelligence.
+          Citizens can report potholes, broken streetlights, garbage overflow, and water leakage using
+          simple photo uploads, while our AI engine classifies issues automatically.
+        </p>
+        <p class="text-muted">
+          Every claim our system makes is backed by real model inference — no fake confidence scores,
+          no hardcoded predictions. We built this platform with academic integrity and research rigor.
+        </p>
+      </div>
+      <div class="col-lg-6 reveal-right">
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="stat-card text-center">
+              <div class="stat-number text-primary">7</div>
+              <div class="stat-label">AI Categories</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-card text-center">
+              <div class="stat-number text-success">Real</div>
+              <div class="stat-label">AI Inference</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-card text-center">
+              <div class="stat-number text-primary">MySQL</div>
+              <div class="stat-label">Database</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-card text-center">
+              <div class="stat-number text-purple">NLP</div>
+              <div class="stat-label">Text Analysis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Technology Stack -->
+<section class="py-5" style="background:white">
+  <div class="container py-4">
+    <div class="section-header reveal">
+      <span class="section-label">Technology Stack</span>
+      <h2 class="section-title">Built with Industry-Standard Tools</h2>
+    </div>
+    <div class="row g-3 justify-content-center">
+      {% for tech in "Django,Python,MySQL,TensorFlow,OpenCV,Scikit-learn,Bootstrap 5,Leaflet,Chart.js,NLTK"|split:"," %}
+      <div class="col-auto reveal">
+        <span class="badge bg-light text-dark border fw-600" style="padding:0.6rem 1rem;border-radius:50px;font-size:0.9rem">{{ tech }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

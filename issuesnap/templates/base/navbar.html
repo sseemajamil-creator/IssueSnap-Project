@@ -1,0 +1,150 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-issuesnap fixed-top" aria-label="Main navigation">
+  <div class="container">
+    <!-- Brand -->
+    <a class="navbar-brand-logo" href="{% url 'pages:home' %}">
+      <div class="brand-icon">
+        <i class="bi bi-camera-fill"></i>
+      </div>
+      <span class="brand-text">Issue<span>Snap</span></span>
+    </a>
+
+    <!-- Mobile toggle -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false"
+            style="color:white">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <!-- Nav links -->
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto ms-3">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+             href="{% url 'pages:home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+             href="{% url 'pages:about' %}">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'complaints:public_issues' %}">Public Issues</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pages:how_it_works' %}">How It Works</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pages:ai_technology' %}">AI Technology</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'pages:contact' %}">Contact</a>
+        </li>
+      </ul>
+
+      <!-- Right side -->
+      <ul class="navbar-nav align-items-center gap-2">
+        {% if user.is_authenticated %}
+          <!-- Notifications -->
+          <li class="nav-item dropdown">
+            <a class="nav-link position-relative px-2" href="#"
+               data-bs-toggle="dropdown" aria-label="Notifications">
+              <i class="bi bi-bell fs-5"></i>
+              <span id="notif-badge"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style="font-size:0.65rem;display:none">0</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width:300px;border-radius:12px;border:1px solid #E2E8F0">
+              <li class="px-3 pt-2 pb-1 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold small">Notifications</span>
+                <a href="{% url 'notifications:mark_all_read' %}" class="small text-primary text-decoration-none" id="mark-all-read">Mark all read</a>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              {% for notif in recent_notifications %}
+              <li>
+                <a class="dropdown-item py-2 {% if not notif.is_read %}bg-light{% endif %}"
+                   href="{% url 'notifications:mark_read' notif.id %}"
+                   style="border-radius:8px;white-space:normal">
+                  <div class="d-flex gap-2">
+                    <i class="bi bi-{{ notif.get_icon }} text-primary mt-1 flex-shrink-0"></i>
+                    <div>
+                      <div class="small fw-semibold">{{ notif.title }}</div>
+                      <div class="small text-muted">{{ notif.message|truncatechars:60 }}</div>
+                      <div class="small text-muted">{{ notif.created_at|timesince }} ago</div>
+                    </div>
+                  </div>
+                </a>
+              </li>
+              {% empty %}
+              <li class="text-center py-3 text-muted small">No new notifications</li>
+              {% endfor %}
+              <li><hr class="dropdown-divider my-1"></li>
+              <li>
+                <a class="dropdown-item text-center small text-primary" href="{% url 'notifications:list' %}">
+                  View all notifications
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- User menu -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-2" href="#"
+               data-bs-toggle="dropdown">
+              {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" class="avatar-sm" alt="{{ user.get_full_name }}">
+              {% else %}
+                <div class="avatar-sm bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
+                     style="border-radius:50%;font-size:0.85rem">
+                  {{ user.first_name.0 }}{{ user.last_name.0 }}
+                </div>
+              {% endif %}
+              <span class="d-none d-lg-inline text-white fw-500" style="font-size:0.9rem">
+                {{ user.get_short_name }}
+              </span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" style="border-radius:12px;min-width:200px;border:1px solid #E2E8F0">
+              <li class="px-3 py-2">
+                <div class="fw-semibold small">{{ user.get_full_name }}</div>
+                <div class="text-muted small">{{ user.email }}</div>
+                <span class="badge bg-primary mt-1" style="font-size:0.7rem;text-transform:capitalize">{{ user.role }}</span>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              {% if user.is_admin_user or user.is_staff %}
+              <li><a class="dropdown-item" href="{% url 'admin_complaints:dashboard' %}"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</a></li>
+              {% endif %}
+              <li><a class="dropdown-item" href="{% url 'complaints:citizen_dashboard' %}"><i class="bi bi-house me-2"></i>My Dashboard</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="{% url 'complaints:report_issue' %}"><i class="bi bi-plus-circle me-2"></i>Report Issue</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'accounts:login' %}">Sign In</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn-report px-3" href="{% url 'accounts:register' %}">
+              <i class="bi bi-person-plus me-1"></i>Register
+            </a>
+          </li>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link btn-report px-3" href="{% url 'complaints:report_issue' %}">
+            <i class="bi bi-camera me-1"></i>Report Issue
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

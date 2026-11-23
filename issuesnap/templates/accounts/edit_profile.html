@@ -1,0 +1,74 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card-issuesnap p-4">
+      <h5 class="fw-700 mb-4"><i class="bi bi-pencil me-2 text-primary"></i>Edit Profile</h5>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h6 class="fw-600 mb-3 text-muted small text-uppercase">Account Information</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">First Name *</label>
+            {{ user_form.first_name }}
+            {% if user_form.first_name.errors %}<div class="text-danger small">{{ user_form.first_name.errors|join:", " }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Last Name *</label>
+            {{ user_form.last_name }}
+            {% if user_form.last_name.errors %}<div class="text-danger small">{{ user_form.last_name.errors|join:", " }}</div>{% endif %}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Username *</label>
+            {{ user_form.username }}
+            {% if user_form.username.errors %}<div class="text-danger small">{{ user_form.username.errors|join:", " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <h6 class="fw-600 mb-3 text-muted small text-uppercase">Profile Details</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            {{ profile_form.phone }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">District</label>
+            {{ profile_form.district }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">City</label>
+            {{ profile_form.city }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">CNIC</label>
+            {{ profile_form.cnic }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Address</label>
+            {{ profile_form.address }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Bio</label>
+            {{ profile_form.bio }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Profile Photo</label>
+            {{ profile_form.avatar }}
+          </div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn-primary-custom">
+            <i class="bi bi-save me-2"></i>Save Changes
+          </button>
+          <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary" style="border-radius:12px;padding:0.75rem 1.5rem">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base/base.html' %}
+{% load static humanize %}
+{% load issuesnap_tags %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">Research Lab</span>
+    <h1 class="section-title" style="color:white">AI Research Dashboard</h1>
+    <p class="section-desc" style="color:rgba(255,255,255,.75)">
+      Experiment records, model evaluations, and dataset information.
+    </p>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4">
+    <!-- Quick nav -->
+    <div class="row g-3 mb-5">
+      {% for item in "Datasets,Models,Comparison,Experiments,Metrics,Documentation"|split:"," %}
+      <div class="col-6 col-md-4 col-lg-2 reveal">
+        <a href="{% url 'research:'|add:item|lower %}" class="card-issuesnap p-3 text-center text-decoration-none d-block hover-shadow">
+          <i class="bi bi-flask fs-3 text-primary mb-2 d-block"></i>
+          <div class="fw-600 small">{{ item }}</div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-5">
+      <div class="col-md-3 reveal">
+        <div class="stat-card text-center">
+          <div class="stat-number text-primary" data-count="{{ total_experiments }}">0</div>
+          <div class="stat-label">Experiments</div>
+        </div>
+      </div>
+      <div class="col-md-3 reveal">
+        <div class="stat-card text-center">
+          <div class="stat-number text-primary" data-count="{{ total_models }}">0</div>
+          <div class="stat-label">Model Versions</div>
+        </div>
+      </div>
+      <div class="col-md-3 reveal">
+        <div class="stat-card text-center">
+          {% if best_model %}
+          <div class="stat-number text-success">{{ best_model.accuracy|floatformat:1 }}%</div>
+          {% else %}
+          <div class="stat-number text-muted">—</div>
+          {% endif %}
+          <div class="stat-label">Best Accuracy</div>
+        </div>
+      </div>
+      <div class="col-md-3 reveal">
+        <div class="stat-card text-center">
+          <div class="stat-number text-primary">7</div>
+          <div class="stat-label">AI Classes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Best model info -->
+    {% if best_model %}
+    <div class="card-issuesnap p-4 mb-4 reveal">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <div>
+          <span class="badge bg-success mb-2">Active Model</span>
+          <h5 class="fw-700">{{ best_model.name }} v{{ best_model.version }}</h5>
+          <p class="text-muted">{{ best_model.description }}</p>
+        </div>
+        <div class="text-end">
+          <div class="fw-700 fs-4 text-primary">{{ best_model.accuracy|floatformat:1 }}%</div>
+          <div class="text-muted small">Accuracy</div>
+        </div>
+      </div>
+      <div class="row g-3 mt-2">
+        <div class="col-3 text-center">
+          <div class="fw-700">{{ best_model.precision|floatformat:1|default:"—" }}%</div>
+          <div class="text-muted small">Precision</div>
+        </div>
+        <div class="col-3 text-center">
+          <div class="fw-700">{{ best_model.recall|floatformat:1|default:"—" }}%</div>
+          <div class="text-muted small">Recall</div>
+        </div>
+        <div class="col-3 text-center">
+          <div class="fw-700">{{ best_model.f1_score|floatformat:1|default:"—" }}%</div>
+          <div class="text-muted small">F1-Score</div>
+        </div>
+        <div class="col-3 text-center">
+          <div class="fw-700">{{ best_model.inference_time_ms|floatformat:0|default:"—" }}ms</div>
+          <div class="text-muted small">Inference</div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info reveal">
+      <i class="bi bi-info-circle me-2"></i>
+      No trained model is currently registered. Train a model using the scripts in <code>ai/training/</code>
+      and register it in the Admin panel under AI Engine → Model Versions.
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>document.querySelectorAll('[data-count]').forEach(el => IssueSnap.animateCounter(el));</script>
+{% endblock %}

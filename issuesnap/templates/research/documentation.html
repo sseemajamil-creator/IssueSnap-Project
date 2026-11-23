@@ -1,0 +1,93 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">Research</span>
+    <h1 class="section-title" style="color:white">Research Documentation</h1>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4" style="max-width:960px">
+    <div class="row g-4">
+      <div class="col-md-3">
+        <!-- TOC -->
+        <div class="card-issuesnap p-3 sticky-top" style="top:80px">
+          <h6 class="fw-700 mb-2 small text-uppercase text-muted">Contents</h6>
+          <nav>
+            {% for section in "Abstract,Introduction,Problem Statement,Literature Review,Objectives,Methodology,Dataset,Experiments,Results,Discussion,Limitations,Future Work" %}
+            <a href="#{{ section|lower|cut:' ' }}" class="d-block small text-decoration-none text-muted py-1 hover-primary">
+              {{ section }}
+            </a>
+            {% endfor %}
+          </nav>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="card-issuesnap p-4 p-md-5">
+          <div id="abstract" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Abstract</h3>
+            <p class="text-muted">IssueSnap is an AI-powered smart civic issue detection, reporting and management system developed as a final-year engineering research project. The platform integrates computer vision, natural language processing, and geographic information systems to automate the classification of civic infrastructure problems from citizen-submitted photographs. Using transfer learning on MobileNetV2 and EfficientNetB0 architectures, the system supports 7 complaint categories. NLP-based duplicate detection using TF-IDF cosine similarity reduces redundant reports. A transparent rule-based priority prediction system assists administrators in triaging complaints. The system is built on Django with a MySQL backend and deployed with a professional, mobile-responsive UI.</p>
+          </div>
+
+          <div id="introduction" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Introduction</h3>
+            <p class="text-muted">Urban public infrastructure degradation poses significant challenges for city administrators and citizens. Potholes, broken streetlights, water leakage, and garbage overflow directly impact quality of life and public safety. Traditional reporting methods — hotlines, in-person visits — are inefficient and difficult to track. IssueSnap addresses this by providing a digital platform where citizens photograph issues, AI classifies them, and administrators manage resolution through a data-driven workflow.</p>
+          </div>
+
+          <div id="problemstatement" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Problem Statement</h3>
+            <p class="text-muted">How can a deep learning-based image classification system, combined with NLP analysis and geographic tracking, improve the efficiency and accuracy of civic issue reporting and management compared to manual, text-based complaint systems?</p>
+          </div>
+
+          <div id="objectives" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Research Objectives</h3>
+            <ul class="text-muted">
+              <li>Design and train a CNN-based classifier for 7 civic issue categories using publicly available datasets.</li>
+              <li>Implement NLP-based duplicate complaint detection using TF-IDF and cosine similarity.</li>
+              <li>Develop a transparent rule-based priority prediction system.</li>
+              <li>Build a full-stack civic issue management platform with real AI integration.</li>
+              <li>Evaluate model performance using accuracy, precision, recall, F1-score, and inference time.</li>
+            </ul>
+          </div>
+
+          <div id="methodology" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Proposed Methodology</h3>
+            <p class="text-muted">The system follows a multi-modal AI pipeline:</p>
+            <ol class="text-muted">
+              <li><strong>Image preprocessing</strong> using OpenCV (resize, normalize, augment)</li>
+              <li><strong>Transfer learning</strong> on MobileNetV2 / EfficientNetB0 (ImageNet weights)</li>
+              <li><strong>Fine-tuning</strong> final layers on civic issue datasets</li>
+              <li><strong>NLP analysis</strong> using TF-IDF vectorization and cosine similarity</li>
+              <li><strong>Geographic analysis</strong> using Haversine formula for proximity detection</li>
+              <li><strong>Priority scoring</strong> using transparent rule-based system</li>
+            </ol>
+          </div>
+
+          <div id="limitations" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Known Limitations</h3>
+            <ul class="text-muted">
+              <li>Model performance depends on dataset quality and size. Small datasets may limit accuracy.</li>
+              <li>The rule-based priority system does not use learned weights — suitable for transparency but may miss complex patterns.</li>
+              <li>Geographic duplicate detection requires GPS coordinates from citizens, which may not always be available.</li>
+              <li>The system does not currently support real-time video or streaming.</li>
+            </ul>
+          </div>
+
+          <div id="futurework" class="mb-5">
+            <h3 class="fw-700 border-bottom pb-2 mb-3">Future Work</h3>
+            <ul class="text-muted">
+              <li>Collect and annotate a larger Pakistan-specific civic issue dataset.</li>
+              <li>Implement YOLO-based object detection for precise localization within images.</li>
+              <li>Train an ML-based priority classifier on historical resolved complaint data.</li>
+              <li>Add real-time push notifications using WebSockets.</li>
+              <li>Integrate with municipal authority APIs for automated assignment.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

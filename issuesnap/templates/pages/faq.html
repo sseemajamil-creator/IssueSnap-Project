@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">FAQ</span>
+    <h1 class="section-title" style="color:white">Frequently Asked Questions</h1>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4" style="max-width:800px">
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item border mb-2 reveal" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button fw-600" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+            How do I report a civic issue?
+          </button>
+        </h2>
+        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">Go to <strong>Report Issue</strong> in your dashboard. Upload 1–5 photos, describe the problem, pin the location on the map, and submit. You'll receive a unique complaint ID instantly.</div>
+        </div>
+      </div>
+
+      <div class="accordion-item border mb-2 reveal" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-600" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+            Is the AI detection real or fake?
+          </button>
+        </h2>
+        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">It is real. Our system uses a genuinely trained MobileNetV2 model. If the model has not been trained yet, the site clearly displays a message and your complaint is submitted for manual review. We never show fake predictions or hardcoded confidence scores.</div>
+        </div>
+      </div>
+
+      <div class="accordion-item border mb-2 reveal" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-600" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+            How do I track my complaint?
+          </button>
+        </h2>
+        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">Use the <strong>Track Complaint</strong> page and enter your complaint ID in the format ISS-2026-XXXXXX. You can see the full status timeline and admin notes.</div>
+        </div>
+      </div>
+
+      <div class="accordion-item border mb-2 reveal" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-600" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+            What if my complaint is flagged as a duplicate?
+          </button>
+        </h2>
+        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">The system flags it for admin review only. Your complaint is <strong>not automatically rejected</strong>. An administrator will review both complaints and decide whether to confirm the duplicate status.</div>
+        </div>
+      </div>
+
+      <div class="accordion-item border mb-2 reveal" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-600" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+            Can I report an issue without GPS?
+          </button>
+        </h2>
+        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">Yes. You can click directly on the interactive map to pin the location, or type the address manually. GPS provides the highest accuracy for hotspot analysis.</div>
+        </div>
+      </div>
+
+      <div class="accordion-item border mb-2 reveal" style="border-radius:12px!important;overflow:hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed fw-600" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+            How long until my issue is resolved?
+          </button>
+        </h2>
+        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-muted">Resolution time depends on severity, category, and local authority response. Critical issues flagged by AI are prioritized higher in the admin queue.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

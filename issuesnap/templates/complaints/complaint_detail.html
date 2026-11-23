@@ -1,0 +1,267 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static humanize %}
+{% load issuesnap_tags %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+  <!-- Left: Main details -->
+  <div class="col-lg-8">
+    <!-- Header card -->
+    <div class="card-issuesnap p-4 mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+          <span class="complaint-id fs-6">{{ complaint.complaint_id }}</span>
+          <h4 class="fw-800 mt-2 mb-1">{{ complaint.title }}</h4>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge-status badge-{{ complaint.status }}">
+              <i class="bi bi-circle-fill me-1" style="font-size:0.5rem"></i>{{ complaint.get_status_display }}
+            </span>
+            <span class="badge-status badge-{{ complaint.priority }}">{{ complaint.get_priority_display }} Priority</span>
+            {% if complaint.category %}
+            <span class="badge bg-light text-dark border" style="font-size:0.8rem">
+              <i class="{{ complaint.category.icon }} me-1" style="color:{{ complaint.category.color }}"></i>{{ complaint.category.name }}
+            </span>
+            {% endif %}
+            {% if complaint.ai_analyzed %}
+            <span class="badge bg-primary" style="font-size:0.8rem"><i class="bi bi-cpu me-1"></i>AI Analyzed</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="text-muted small text-end">
+          <div>Submitted {{ complaint.submitted_at|date:"M d, Y H:i" }}</div>
+          {% if complaint.resolved_at %}
+          <div class="text-success">Resolved {{ complaint.resolved_at|date:"M d, Y" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <p class="mb-0">{{ complaint.description }}</p>
+    </div>
+
+    <!-- Images -->
+    {% if images %}
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-images me-2 text-primary"></i>Uploaded Images</h6>
+      <div class="row g-2">
+        {% for img in images %}
+        <div class="col-6 col-md-4">
+          <a href="{{ img.image.url }}" target="_blank" title="View full image">
+            <img src="{{ img.image.url }}" class="img-fluid rounded" style="width:100%;height:160px;object-fit:cover;transition:transform 0.2s"
+                 onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'"
+                 alt="Complaint image {{ forloop.counter }}">
+          </a>
+          {% if img.is_primary %}
+          <div class="text-center mt-1">
+            <span class="badge bg-primary" style="font-size:0.65rem">Primary</span>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Results -->
+    {% if ai_results %}
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-cpu me-2 text-primary"></i>AI Analysis Results</h6>
+      {% for result in ai_results %}
+      <div class="ai-result-card mb-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="fw-700">{{ result.predicted_class|title|cut:"_" }}</div>
+            {% if result.model_version %}
+            <div class="text-muted small">Model: {{ result.model_version.name }}</div>
+            {% endif %}
+          </div>
+          {% if result.is_above_threshold %}
+          <span class="badge bg-success">High Confidence</span>
+          {% else %}
+          <span class="badge bg-warning text-dark">Low Confidence</span>
+          {% endif %}
+        </div>
+        <div class="d-flex justify-content-between mb-1 small">
+          <span>Confidence</span>
+          <strong>{{ result.confidence_score|floatformat:1 }}%</strong>
+        </div>
+        <div class="ai-confidence-bar">
+          <div class="ai-confidence-fill" style="width:{{ result.confidence_score }}%"></div>
+        </div>
+        {% if result.top_predictions %}
+        <div class="mt-3">
+          <div class="text-muted small fw-600 mb-2">Top Predictions:</div>
+          {% for pred in result.top_predictions %}
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>{{ pred.display_name|default:pred.class }}</span>
+            <span>{{ pred.confidence|floatformat:1 }}%</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if result.inference_time_ms %}
+        <div class="text-muted small mt-2">Inference time: {{ result.inference_time_ms }}ms</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% elif complaint.ai_analyzed %}
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-cpu me-2 text-primary"></i>AI Analysis</h6>
+      <div class="alert alert-info mb-0">
+        <i class="bi bi-info-circle me-2"></i>AI analysis completed. No model was available at time of submission — manual review will be performed.
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Status Timeline -->
+    <div class="card-issuesnap p-4">
+      <h6 class="fw-700 mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>Status History</h6>
+      <div class="timeline">
+        {% for item in status_history %}
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:{% if item.new_status == 'resolved' or item.new_status == 'completed' %}#10B981{% elif item.new_status == 'rejected' %}#EF4444{% else %}#2563EB{% endif %}"></div>
+          <div class="timeline-content">
+            <div class="d-flex justify-content-between gap-2 mb-1">
+              <div>
+                {% if item.old_status %}
+                <span class="badge-status badge-{{ item.old_status }} me-1" style="font-size:0.7rem">{{ item.old_status|replace_underscore }}</span>
+                <i class="bi bi-arrow-right text-muted small"></i>
+                {% endif %}
+                <span class="badge-status badge-{{ item.new_status }} ms-1" style="font-size:0.7rem">{{ item.new_status|replace_underscore }}</span>
+              </div>
+              <span class="text-muted small">{{ item.changed_at|date:"M d, Y H:i" }}</span>
+            </div>
+            {% if item.note %}
+            <p class="text-muted small mb-1">{{ item.note }}</p>
+            {% endif %}
+            {% if item.changed_by %}
+            <span class="text-muted small"><i class="bi bi-person me-1"></i>{{ item.changed_by.get_full_name }}</span>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted small">No status history yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Location + Info -->
+  <div class="col-lg-4">
+    <!-- Location -->
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Location</h6>
+      {% if complaint.latitude and complaint.longitude %}
+      <div id="complaint-map" style="height:220px;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0;margin-bottom:1rem"></div>
+      <div class="small text-muted mb-3">
+        <i class="bi bi-crosshair me-1 text-primary"></i>
+        Coordinates: <span class="fw-mono fw-600 text-primary">{{ complaint.latitude }}, {{ complaint.longitude }}</span>
+      </div>
+      {% else %}
+      <div class="alert alert-info small mb-3">
+        <i class="bi bi-info-circle me-1"></i>No map coordinates were captured for this complaint.
+      </div>
+      {% endif %}
+      <div class="small">
+        <div class="d-flex gap-2 mb-2">
+          <i class="bi bi-building text-muted"></i>
+          <div>
+            <div class="fw-600">{{ complaint.district|title }}</div>
+            <div class="text-muted">District</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mb-2">
+          <i class="bi bi-map text-muted"></i>
+          <div>
+            <div class="fw-600">{{ complaint.area }}</div>
+            <div class="text-muted">Area</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mb-2">
+          <i class="bi bi-signpost text-muted"></i>
+          <div>
+            <div class="fw-600">{{ complaint.address }}</div>
+            <div class="text-muted">Address</div>
+          </div>
+        </div>
+        {% if complaint.landmark %}
+        <div class="d-flex gap-2">
+          <i class="bi bi-bookmark text-muted"></i>
+          <div>
+            <div class="fw-600">{{ complaint.landmark }}</div>
+            <div class="text-muted">Landmark</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Complaint Info -->
+    <div class="card-issuesnap p-4 mb-4">
+      <h6 class="fw-700 mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Complaint Info</h6>
+      <div class="small">
+        <div class="d-flex justify-content-between border-bottom py-2">
+          <span class="text-muted">Complaint ID</span>
+          <span class="fw-mono fw-600 text-primary">{{ complaint.complaint_id }}</span>
+        </div>
+        <div class="d-flex justify-content-between border-bottom py-2">
+          <span class="text-muted">Submitted</span>
+          <span class="fw-600">{{ complaint.submitted_at|date:"M d, Y" }}</span>
+        </div>
+        <div class="d-flex justify-content-between border-bottom py-2">
+          <span class="text-muted">Last Updated</span>
+          <span class="fw-600">{{ complaint.updated_at|date:"M d, Y" }}</span>
+        </div>
+        {% if complaint.assigned_to %}
+        <div class="d-flex justify-content-between border-bottom py-2">
+          <span class="text-muted">Assigned To</span>
+          <span class="fw-600">{{ complaint.assigned_to.get_full_name }}</span>
+        </div>
+        {% endif %}
+        {% if complaint.admin_notes %}
+        <div class="pt-2">
+          <div class="text-muted mb-1">Admin Notes:</div>
+          <div class="bg-light rounded p-2">{{ complaint.admin_notes }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Duplicate warning -->
+    {% if duplicate_matches %}
+    <div class="card-issuesnap p-4 border border-warning">
+      <h6 class="fw-700 mb-3 text-warning">
+        <i class="bi bi-files me-2"></i>Possible Duplicates Detected
+      </h6>
+      {% for match in duplicate_matches %}
+      <div class="small p-2 bg-warning bg-opacity-10 rounded mb-2">
+        <div class="fw-600">Similar to {{ match.original_complaint.complaint_id }}</div>
+        <div class="text-muted">Similarity: {{ match.similarity_score|floatformat:0 }}%</div>
+      </div>
+      {% endfor %}
+      <div class="text-muted small">An admin will review these matches. Your complaint will not be automatically dismissed.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if complaint.latitude and complaint.longitude %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const map = L.map('complaint-map').setView([{{ complaint.latitude }}, {{ complaint.longitude }}], 15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+    referrerPolicy: 'no-referrer-when-downgrade',
+  }).addTo(map);
+  L.marker([{{ complaint.latitude }}, {{ complaint.longitude }}])
+    .addTo(map)
+    .bindPopup('{{ complaint.title|escapejs }}')
+    .openPopup();
+  setTimeout(() => map.invalidateSize(), 200);
+});
+</script>
+{% endif %}
+{% endblock %}

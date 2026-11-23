@@ -1,0 +1,104 @@
+{% extends 'base/base.html' %}
+{% load issuesnap_tags %}
+
+{% block content %}
+<div class="section-dark py-5" style="padding-top:120px!important">
+  <div class="container text-center py-4">
+    <span class="section-label" style="color:#93C5FD">AI Technology</span>
+    <h1 class="section-title" style="color:white">Real Computer Vision, Not Fake AI</h1>
+    <p class="section-desc" style="color:rgba(255,255,255,.75)">
+      Every prediction is a real model output. Every confidence score is genuine. No hardcoded values, ever.
+    </p>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container py-4">
+    <div class="row g-4">
+      <div class="col-lg-6 reveal">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-image"></i></div>
+          <h4 class="feature-title">Image Preprocessing (OpenCV)</h4>
+          <p class="feature-desc">Raw images are loaded with OpenCV, converted from BGR to RGB, resized to 224×224, and normalized to [0,1] before inference.</p>
+          <div class="mt-3 p-3 bg-light rounded" style="font-family:monospace;font-size:0.82rem">
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)<br>
+            img = cv2.resize(img, (224, 224))<br>
+            img = img.astype(np.float32) / 255.0
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal" style="transition-delay:0.1s">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-cpu-fill"></i></div>
+          <h4 class="feature-title">Model Architecture</h4>
+          <p class="feature-desc">MobileNetV2 or EfficientNetB0 with transfer learning. Final layers fine-tuned on civic issue datasets. Supports 7 categories.</p>
+          <ul class="text-muted small">
+            <li>Base: MobileNetV2 (ImageNet weights)</li>
+            <li>Added: GlobalAveragePooling → Dense(256) → Dropout(0.4) → Dense(7, softmax)</li>
+            <li>Input: 224×224×3</li>
+            <li>Output: 7-class softmax probabilities</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-chat-text-fill"></i></div>
+          <h4 class="feature-title">NLP Text Analysis</h4>
+          <p class="feature-desc">TF-IDF vectorization and cosine similarity detect potential duplicate complaints. Keyword extraction identifies urgency and category.</p>
+          <ul class="text-muted small">
+            <li>Text cleaning and stopword removal</li>
+            <li>Keyword frequency scoring</li>
+            <li>Urgency keyword detection</li>
+            <li>Category suggestion from text</li>
+            <li>Cosine similarity for duplicates</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal" style="transition-delay:0.1s">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <h4 class="feature-title">Priority Prediction</h4>
+          <p class="feature-desc">Rule-based priority scoring considers category weight, urgency keywords, AI confidence, and description detail. Fully transparent reasoning.</p>
+          <div class="mt-2">
+            <span class="badge badge-critical me-1">Critical: Score ≥ 70</span>
+            <span class="badge badge-high me-1">High: ≥ 50</span>
+            <span class="badge badge-medium me-1">Medium: ≥ 30</span>
+            <span class="badge badge-low">Low: &lt; 30</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supported classes -->
+    <div class="mt-5 reveal">
+      <h3 class="section-title text-center mb-4">Supported AI Categories</h3>
+      <div class="row g-3 justify-content-center">
+        {% for cls in "Road Pothole,Road Crack,Garbage Overflow,Water Leakage,Drainage Blockage,Broken Streetlight,Damaged Infrastructure"|split:"," %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-issuesnap text-center p-3">
+            <i class="bi bi-cpu-fill text-primary fs-2 mb-2"></i>
+            <div class="fw-600 small">{{ cls }}</div>
+            <span class="badge bg-primary mt-1" style="font-size:0.65rem">AI Supported</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Model not trained disclaimer -->
+    <div class="mt-5 reveal">
+      <div class="alert alert-info d-flex gap-3" style="border-radius:16px">
+        <i class="bi bi-info-circle-fill fs-4 flex-shrink-0 mt-1"></i>
+        <div>
+          <strong>Model Training Required</strong><br>
+          The AI classification model must be trained using the provided training scripts before inference is active.
+          See the <a href="{% url 'research:dataset_info' %}">Dataset page</a> for recommended public datasets
+          and <code>ai/training/</code> for training scripts.
+          Until a trained model is present, the system logs a clear message and complaints are submitted for manual review.
+          No fake predictions are ever shown.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
