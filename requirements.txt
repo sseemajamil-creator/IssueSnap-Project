@@ -36,3 +36,4 @@ pytest-django==4.9.0
 # TensorFlow (install separately — requires compatible CUDA/Python version)
 # tensorflow==2.15.1   # for Python 3.10/3.11 on GPU
 # tensorflow-cpu==2.15.1  # CPU-only
+tensorflow-cpu==2.15.1
